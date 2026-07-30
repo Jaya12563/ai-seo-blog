@@ -1,19 +1,25 @@
-import { auth } from "@/lib/auth";
 import { NextResponse } from "next/server";
+import type { NextRequest } from "next/server";
+import { getToken } from "next-auth/jwt";
 
-export default auth((req) => {
+export async function middleware(req: NextRequest) {
   const { pathname } = req.nextUrl;
-  const session = req.auth;
-  const role = (session?.user as any)?.role;
 
-  // Always allow sign-out page
+  const token = await getToken({
+    req,
+    secret: process.env.NEXTAUTH_SECRET,
+  });
+
+  const role = (token as any)?.role;
+
+  // Allow sign-out page always
   if (pathname === "/sign-out") {
     return NextResponse.next();
   }
 
-  // Auth routes — redirect logged in users
+  // Auth routes — redirect logged in users away
   if (pathname === "/sign-in" || pathname === "/sign-up") {
-    if (session) {
+    if (token) {
       if (role === "ADMIN") {
         return NextResponse.redirect(new URL("/admin", req.url));
       }
@@ -22,9 +28,9 @@ export default auth((req) => {
     return NextResponse.next();
   }
 
-  // Admin routes
+  // Admin routes — must be ADMIN
   if (pathname.startsWith("/admin")) {
-    if (!session) {
+    if (!token) {
       return NextResponse.redirect(new URL("/sign-in", req.url));
     }
     if (role !== "ADMIN") {
@@ -33,16 +39,16 @@ export default auth((req) => {
     return NextResponse.next();
   }
 
-  // Dashboard routes
+  // Dashboard routes — must be logged in
   if (pathname.startsWith("/dashboard")) {
-    if (!session) {
+    if (!token) {
       return NextResponse.redirect(new URL("/sign-in", req.url));
     }
     return NextResponse.next();
   }
 
   return NextResponse.next();
-});
+}
 
 export const config = {
   matcher: ["/((?!api|_next/static|_next/image|favicon.ico).*)"],
