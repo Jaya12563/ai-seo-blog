@@ -2,6 +2,9 @@
   "name": "ai-seo-blog",
   "version": "0.1.0",
   "private": true,
+  "engines": {
+    "node": ">=18.0.0"
+  },
   "scripts": {
     "dev": "next dev",
     "build": "next build",
@@ -44,5 +47,8 @@
     "tailwindcss": "^4.0.0",
     "tsx": "^4.0.0",
     "typescript": "^5"
+  },
+  "overrides": {
+    "next": "15.3.4"
   }
 }
