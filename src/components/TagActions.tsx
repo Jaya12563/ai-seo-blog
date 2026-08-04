@@ -16,24 +16,30 @@ export default function TagActions({ tag }: { tag: any }) {
 
   async function handleUpdate() {
     setLoading(true);
-    const result = await updateTag(tag.id, name);
-    setLoading(false);
-    if (result.error) {
-      toast.error(result.error);
-    } else {
+    try {
+      await updateTag(tag.id, name);
       toast.success("Tag updated");
       setEditing(false);
       router.refresh();
+    } catch {
+      toast.error("Failed to update tag");
+    } finally {
+      setLoading(false);
     }
   }
 
   async function handleDelete() {
     if (!confirm("Delete this tag?")) return;
     setLoading(true);
-    await deleteTag(tag.id);
-    setLoading(false);
-    toast.success("Tag deleted");
-    router.refresh();
+    try {
+      await deleteTag(tag.id);
+      toast.success("Tag deleted");
+      router.refresh();
+    } catch {
+      toast.error("Failed to delete tag");
+    } finally {
+      setLoading(false);
+    }
   }
 
   if (editing) {

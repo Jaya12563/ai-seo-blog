@@ -26,14 +26,15 @@ export default function EditUserModal({ user }: { user: any }) {
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
     setLoading(true);
-    const result = await editUser(user.id, { name, role });
-    setLoading(false);
-    if (result.error) {
-      toast.error(result.error);
-    } else {
+    try {
+      await editUser(user.id, { name, role });
       toast.success("User updated");
       setOpen(false);
       router.refresh();
+    } catch {
+      toast.error("Failed to update user");
+    } finally {
+      setLoading(false);
     }
   }
 
