@@ -12,12 +12,10 @@ export async function middleware(req: NextRequest) {
 
   const role = (token as any)?.role;
 
-  // Allow sign-out page always
   if (pathname === "/sign-out") {
     return NextResponse.next();
   }
 
-  // Auth routes — redirect logged in users away
   if (pathname === "/sign-in" || pathname === "/sign-up") {
     if (token) {
       if (role === "ADMIN") {
@@ -28,7 +26,6 @@ export async function middleware(req: NextRequest) {
     return NextResponse.next();
   }
 
-  // Admin routes — must be ADMIN
   if (pathname.startsWith("/admin")) {
     if (!token) {
       return NextResponse.redirect(new URL("/sign-in", req.url));
@@ -39,7 +36,6 @@ export async function middleware(req: NextRequest) {
     return NextResponse.next();
   }
 
-  // Dashboard routes — must be logged in
   if (pathname.startsWith("/dashboard")) {
     if (!token) {
       return NextResponse.redirect(new URL("/sign-in", req.url));
